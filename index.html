@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>倒计时：距离7月11日</title>
+<style>
+body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background:#0a1229; color:#f0f8ff; margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+.container { padding:24px; border-radius:24px; background:rgba(255,255,255,.08); box-shadow:0 20px 60px rgba(0,0,0,.35); text-align:center; width:min(92vw,760px); }
+h1{margin-bottom:16px;font-size:2.4rem;}
+.note{opacity:.8;margin-bottom:24px;}
+.countdown-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;margin:0 auto 22px;max-width:760px;}
+.card{padding:18px 14px;border-radius:18px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);}
+.card .value{font-size:2.4rem;font-weight:700;}
+.card .label{margin-top:10px;font-size:1rem;color:#d0e7ff;}
+.extra{font-size:1rem;line-height:1.6;text-align:left;margin-top:18px;}
+strong{color:#d3f2ff;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>距离 7月11日 的倒计时</h1>
+  <p class="note">如果今天已经过了7月11日，则显示下一个7月11日的剩余时间。</p>
+  <div class="countdown-grid">
+    <div class="card"><div class="value" id="years">0</div><div class="label">年</div></div>
+    <div class="card"><div class="value" id="months">0</div><div class="label">月</div></div>
+    <div class="card"><div class="value" id="days">0</div><div class="label">天</div></div>
+    <div class="card"><div class="value" id="hours">0</div><div class="label">时</div></div>
+    <div class="card"><div class="value" id="minutes">0</div><div class="label">分</div></div>
+    <div class="card"><div class="value" id="seconds">0</div><div class="label">秒</div></div>
+  </div>
+  <div class="extra">
+    <p><strong>格式展示</strong></p>
+    <p id="full-format">YYYY 年 MM 月 DD 日 HH 时 mm 分 ss 秒</p>
+    <p id="detail-format"></p>
+    <p id="total-format"></p>
+  </div>
+</div>
+<script>
+const targetDate = getNextJulyEleventh();
+const targetText = formatDate(targetDate);
+const fullFormat = document.getElementById("full-format");
+const detailFormat = document.getElementById("detail-format");
+const totalFormat = document.getElementById("total-format");
+
+function getNextJulyEleventh() {
+  const now = new Date();
+  const year = now.getFullYear();
+  let target = new Date(year, 6, 11, 0, 0, 0, 0);
+  if (now >= target) {
+    target = new Date(year + 1, 6, 11, 0, 0, 0, 0);
+  }
+  return target;
+}
+
+function pad(number) {
+  return number.toString().padStart(2, "0");
+}
+
+function formatDate(date) {
+  return `${date.getFullYear()} 年 ${pad(date.getMonth() + 1)} 月 ${pad(date.getDate())} 日 ${pad(date.getHours())} 时 ${pad(date.getMinutes())} 分 ${pad(date.getSeconds())} 秒`;
+}
+
+function updateCountdown() {
+  const now = new Date();
+  let remainingMs = targetDate - now;
+  if (remainingMs < 0) {
+    location.reload();
+    return;
+  }
+
+  const second = 1000;
+  const minute = second * 60;
+  const hour = minute * 60;
+  const day = hour * 24;
+
+  const years = Math.floor(remainingMs / (day * 365.2425));
+  const afterYears = remainingMs - years * day * 365.2425;
+  let months = Math.floor(afterYears / (day * 30.436875));
+  const afterMonths = afterYears - months * day * 30.436875;
+  const days = Math.floor(afterMonths / day);
+  const hours = Math.floor((afterMonths % day) / hour);
+  const minutes = Math.floor((afterMonths % hour) / minute);
+  const seconds = Math.floor((afterMonths % minute) / second);
+
+  document.getElementById("years").textContent = years;
+  document.getElementById("months").textContent = months;
+  document.getElementById("days").textContent = days;
+  document.getElementById("hours").textContent = pad(hours);
+  document.getElementById("minutes").textContent = pad(minutes);
+  document.getElementById("seconds").textContent = pad(seconds);
+
+  fullFormat.textContent = `目标时间：${targetText}`;
+  detailFormat.textContent = `还剩：${years} 年 ${months} 月 ${days} 天 ${pad(hours)} 时 ${pad(minutes)} 分 ${pad(seconds)} 秒`;
+  totalFormat.textContent = `总计：${Math.floor(remainingMs / day)} 天 / ${Math.floor(remainingMs / hour)} 时 / ${Math.floor(remainingMs / minute)} 分 / ${Math.floor(remainingMs / second)} 秒`;
+}
+
+updateCountdown();
+setInterval(updateCountdown, 250);
+</script>
+</body>
+</html>
